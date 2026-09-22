@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
+from django.forms.models import model_to_dict
 from django.http import HttpResponse, HttpRequest,JsonResponse
 from json import loads
 from django.views.decorators.csrf import csrf_exempt
@@ -110,6 +111,27 @@ class Get_Quote(View):
                 return JsonResponse(
                     {'status': 'error', 'code': 400}, status=400
                 )
+
+    def patch(self, request, id):        
+        obj = get_object_or_404(Quotes, id=id)
+        dict_from_request = loads(request.body)
+        current_data = model_to_dict(obj)
+        current_data.update(dict_from_request)
+        form = QuoteForm(current_data, instance=obj)
+        if form.is_valid():
+            if form.has_changed():
+                quotes = form.save()
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Part changed!',
+                    'id': quotes.id
+                }, status=201)
+            else:
+                return JsonResponse({'status': 'success', 'message': 'No changes!'}, status=201)
+        else:
+            return JsonResponse(
+                    {'status': 'error', 'code': 400}, status=400
+                )
     
 class Get_Quote_random(View):
     def get(self, request):
@@ -154,6 +176,43 @@ class Category_QuotesView(View):
                     {'status': 'error', 'code': 400},
                     status=400
                     )
+            
+    def put(self, request, id):
+        c_instance = get_object_or_404(Quote_Category, id=id)
+        dict_from_request = loads(request.body)
+        form = Q_CForm(dict_from_request, instance=c_instance)
+        if form.is_valid():
+            q_c = form.save()
+            return JsonResponse(
+                {'status': 'success',
+                'message': 'Changed!',
+                'id': q_c.id}, status=201
+            )
+        else:
+            return JsonResponse(
+                {'status': 'error', 'code': 400}, status=400
+            )
+        
+    def patch(self, request, id):        
+        obj = get_object_or_404(Quote_Category, id=id)
+        dict_from_request = loads(request.body)
+        current_data = model_to_dict(obj)
+        current_data.update(dict_from_request)
+        form = Q_CForm(current_data, instance=obj)
+        if form.is_valid():
+            if form.has_changed():
+                q_c = form.save()
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Part changed!',
+                    'id': q_c.id
+                }, status=201)
+            else:
+                return JsonResponse({'status': 'success', 'message': 'No changes!'}, status=201)
+        else:
+            return JsonResponse(
+                    {'status': 'error', 'code': 400}, status=400
+                )
     
 class Get_Category_Quote(View):
     def get(self, request, category_id, quote_id):
@@ -257,16 +316,16 @@ class TagsView(View):
 @method_decorator(csrf_exempt, 'dispatch')                
 class TagView(View):
     def get(self, request, id):
-        category = Category.objects.values('id', 'name').get(id=id)
+        tags = Tags.objects.values('id', 'name').get(id=id)
         obj = {
-            'data': category
+            'data': tags
         }
         return JsonResponse(obj)
     
     def put(self, request, id):
         t_instance = get_object_or_404(Tags, id=id)
         dict_from_request = loads(request.body)
-        form = CategoryForm(dict_from_request, instance=t_instance)
+        form = TagForm(dict_from_request, instance=t_instance)
         if form.is_valid():
             tag = form.save()
             return JsonResponse(
@@ -279,8 +338,8 @@ class TagView(View):
                 {'status': 'error', 'code': 400}, status=400
             )
     
-    
-class Get_Tag_Quote(View):
+@method_decorator(csrf_exempt, 'dispatch')
+class Tag_QuoteView(View):
     def get(self, request, tag_id, quote_id):
         quote_data = Quote_Tag.objects.filter(
             tag_id=tag_id,
@@ -290,6 +349,51 @@ class Get_Tag_Quote(View):
             'quote__author'
         ).get()
         return JsonResponse(quote_data)
+    
+    def put(self, request, id):
+        q_t_instance = get_object_or_404(Quote_Tag, id=id)
+        dict_from_request = loads(request.body)
+        form = Q_TForm(dict_from_request, instance=q_t_instance)
+        if form.is_valid():
+            q_t = form.save()
+            return JsonResponse(
+                {'status': 'success',
+                'message': 'Changed!',
+                'id': q_t.id}, status=201
+            )
+        else:
+            return JsonResponse(
+                {'status': 'error', 'code': 400}, status=400
+            )
+        
+    def patch(self, request, id):        
+        obj = get_object_or_404(Quote_Tag, id=id)
+        dict_from_request = loads(request.body)
+        current_data = model_to_dict(obj)
+        current_data.update(dict_from_request)
+        form = Q_TForm(current_data, instance=obj)
+        if form.is_valid():
+            if form.has_changed():
+                q_t = form.save()
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Part changed!',
+                    'id': q_t.id
+                }, status=201)
+            else:
+                return JsonResponse({'status': 'success', 'message': 'No changes!'}, status=201)
+        else:
+            return JsonResponse(
+                    {'status': 'error', 'code': 400}, status=400
+                )
+        
+class Tags_QuotesAll(View):
+    def get(self, request):
+            q_t = list(Quote_Tag.objects.values('id', 'quote', 'tag'))
+            obj = {
+                'data': q_t
+            }
+            return JsonResponse(obj)
     
 @method_decorator(csrf_exempt, 'dispatch')
 class Tag_QuotesView(View):
