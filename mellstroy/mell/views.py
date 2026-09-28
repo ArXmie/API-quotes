@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, HttpRequest,JsonResponse
-from json import loads
+from json import *
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .models import *
@@ -98,14 +98,19 @@ class Get_Quote(View):
 
     def put(self, request, id):
             quote_instance = get_object_or_404(Quotes, id=id)
-            dict_from_request = loads(request.body)
+            try:
+                dict_from_request = loads(request.body)
+            except JSONDecodeError:
+                return JsonResponse(
+                    {'status': 'error', 'code': 400}, status=400
+                )
             form = QuoteForm(dict_from_request, instance=quote_instance)
             if form.is_valid():
                 quote = form.save()
                 return JsonResponse(
                     {'status': 'success',
                     'message': 'Changed!',
-                    'id': quote.id}, status=201
+                    'id': quote.id}, status=200
                 )
             else:
                 return JsonResponse(
@@ -132,6 +137,15 @@ class Get_Quote(View):
             return JsonResponse(
                     {'status': 'error', 'code': 400}, status=400
                 )
+        
+    def delete(self, request, id):
+        obj = get_object_or_404(Quotes, id=id)
+        obj.delete()
+        return JsonResponse({
+                            'status': 'success',
+                            'message': 'deleted'
+                        }, status=201)
+        
     
 class Get_Quote_random(View):
     def get(self, request):
@@ -179,7 +193,12 @@ class Category_QuotesView(View):
             
     def put(self, request, id):
         c_instance = get_object_or_404(Quote_Category, id=id)
-        dict_from_request = loads(request.body)
+        try:
+            dict_from_request = loads(request.body)
+        except JSONDecodeError:
+            return JsonResponse(
+                {'status': 'error', 'code': 400}, status=400
+            )
         form = Q_CForm(dict_from_request, instance=c_instance)
         if form.is_valid():
             q_c = form.save()
@@ -213,6 +232,14 @@ class Category_QuotesView(View):
             return JsonResponse(
                     {'status': 'error', 'code': 400}, status=400
                 )
+            
+    def delete(self, request, id):
+        obj = get_object_or_404(Quote_Category, id=id)
+        obj.delete()
+        return JsonResponse({
+                                    'status': 'success',
+                                    'message': 'deleted'
+                                }, status=201)
     
 class Get_Category_Quote(View):
     def get(self, request, category_id, quote_id):
@@ -272,7 +299,12 @@ class CategoryView(View):
     
     def put(self, request, id):
         c_instance = get_object_or_404(Category, id=id)
-        dict_from_request = loads(request.body)
+        try:
+            dict_from_request = loads(request.body)
+        except JSONDecodeError:
+            return JsonResponse(
+                {'status': 'error', 'code': 400}, status=400
+            )
         form = CategoryForm(dict_from_request, instance=c_instance)
         if form.is_valid():
             quote = form.save()
@@ -285,6 +317,14 @@ class CategoryView(View):
             return JsonResponse(
                 {'status': 'error', 'code': 400}, status=400
             )
+    
+    def delete(self, request, id):
+        obj = get_object_or_404(Category, id=id)
+        obj.delete()
+        return JsonResponse({
+                                    'status': 'success',
+                                    'message': 'deleted'
+                                }, status=201)
     
 @method_decorator(csrf_exempt, 'dispatch')
 class TagsView(View):
@@ -324,7 +364,12 @@ class TagView(View):
     
     def put(self, request, id):
         t_instance = get_object_or_404(Tags, id=id)
-        dict_from_request = loads(request.body)
+        try:
+            dict_from_request = loads(request.body)
+        except JSONDecodeError:
+            return JsonResponse(
+                {'status': 'error', 'code': 400}, status=400
+            )
         form = TagForm(dict_from_request, instance=t_instance)
         if form.is_valid():
             tag = form.save()
@@ -337,6 +382,14 @@ class TagView(View):
             return JsonResponse(
                 {'status': 'error', 'code': 400}, status=400
             )
+    
+    def delete(self, request, id):
+        obj = get_object_or_404(Tags, id=id)
+        obj.delete()
+        return JsonResponse({
+                                    'status': 'success',
+                                    'message': 'deleted'
+                                }, status=201)
     
 @method_decorator(csrf_exempt, 'dispatch')
 class Tag_QuoteView(View):
@@ -352,7 +405,12 @@ class Tag_QuoteView(View):
     
     def put(self, request, id):
         q_t_instance = get_object_or_404(Quote_Tag, id=id)
-        dict_from_request = loads(request.body)
+        try:
+            dict_from_request = loads(request.body)
+        except JSONDecodeError:
+            return JsonResponse(
+                {'status': 'error', 'code': 400}, status=400
+            )
         form = Q_TForm(dict_from_request, instance=q_t_instance)
         if form.is_valid():
             q_t = form.save()
@@ -386,6 +444,14 @@ class Tag_QuoteView(View):
             return JsonResponse(
                     {'status': 'error', 'code': 400}, status=400
                 )
+    
+    def delete(self, request, id):
+        obj = get_object_or_404(Quote_Tag, id=id)
+        obj.delete()
+        return JsonResponse({
+                                    'status': 'success',
+                                    'message': 'deleted'
+                                }, status=201)
         
 class Tags_QuotesAll(View):
     def get(self, request):
