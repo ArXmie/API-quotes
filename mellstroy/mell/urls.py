@@ -10,8 +10,10 @@ urlpatterns = [
     path('category/<int:id>', CategoryView.as_view()),
     path('category/add', CategoriesView.as_view()),
     path('category/quotes', Quote_CategoryAll.as_view()),
-    path('category/<int:category_id>/quotes/random', Get_Category_Quote_random.as_view()),
+    path('category/<int:category_id>/quotes/random', Get_Category_Quote_randomID.as_view()),
+    path('category/quotes/random', Get_Category_Quote_random.as_view()),
     path('category/<int:category_id>/quotes', Category_QuotesView.as_view()),
+    path('quote/<int:quote_id>/categories', Get_Quote_Category.as_view()),
     path('category/<int:id>/quote', Category_QuotesView.as_view()), # put запрос
     path('category/quote/add', Category_QuotesView.as_view()),
     path('category/<int:category_id>/quotes/<int:quote_id>', Get_Category_Quote.as_view()),
@@ -21,8 +23,10 @@ urlpatterns = [
     path('tag/quotes', Tags_QuotesAll.as_view()),
     path('tag/<int:tag_id>/quotes/<int:quote_id>', Tag_QuoteView.as_view()),
     path('tag/<int:id>/quote', Tag_QuoteView.as_view()), # put запрос tag_quotes
-    path('tag/<int:tag_id>/quotes/random', Get_Tag_Quote_random.as_view()),
+    path('tag/<int:tag_id>/quotes/random', Get_Tag_Quote_randomID.as_view()),
+    path('tag/quotes/random', Get_Tag_Quote_random.as_view()),
     path('tag/<int:tag_id>/quotes', Tag_QuotesView.as_view()), # get запрос tag_quotes
+    path('quote/<int:quote_id>/tags', Get_Quotes_Tag.as_view()),
     path('tag/quote/add', Tag_QuotesView.as_view()), # post запрос чето там tag_quotes
     path('six', FirstView),
     path('day', SecondView.as_view()),

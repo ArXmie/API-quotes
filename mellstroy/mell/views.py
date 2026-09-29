@@ -152,7 +152,7 @@ class Get_Quote_random(View):
         quote = Quotes.objects.order_by('?').values('id', 'quote', 'author').first()
         return JsonResponse(quote)
     
-class Get_Category_Quote_random(View):
+class Get_Category_Quote_randomID(View):
     def get(self, request, category_id):
         quote_data = Quote_Category.objects.filter(category_id=category_id).order_by('?').values(
             'quote__id',
@@ -162,6 +162,27 @@ class Get_Category_Quote_random(View):
 
         return JsonResponse(quote_data)
     
+class Get_Category_Quote_random(View):
+    def get(self, request):
+        quote_data = Quote_Category.objects.order_by('?').values(
+            'category__id',
+            'category__name',
+            'quote__id',
+            'quote__quote',
+            'quote__author'
+        ).first()
+
+        return JsonResponse(quote_data)
+
+class Get_Quote_Category(View):
+    def get(self, request, quote_id):
+        quote_data = list(Quote_Category.objects.filter(quote_id=quote_id).values(
+            'category__id',
+            'category__name'
+        ))
+
+        return JsonResponse({'data': quote_data})
+
 @method_decorator(csrf_exempt, 'dispatch')    
 class Category_QuotesView(View):
     def get(self, request, category_id):
@@ -390,7 +411,7 @@ class TagView(View):
                                     'status': 'success',
                                     'message': 'deleted'
                                 }, status=201)
-    
+
 @method_decorator(csrf_exempt, 'dispatch')
 class Tag_QuoteView(View):
     def get(self, request, tag_id, quote_id):
@@ -461,6 +482,15 @@ class Tags_QuotesAll(View):
             }
             return JsonResponse(obj)
     
+class Get_Quotes_Tag(View):
+    def get(self, request, quote_id):
+        quote_data = list(Quote_Tag.objects.filter(
+            quote_id=quote_id).values(
+            'tag__id',
+            'tag__name',
+        ))
+        return JsonResponse({'data':quote_data})
+
 @method_decorator(csrf_exempt, 'dispatch')
 class Tag_QuotesView(View):
     def get(self, request, tag_id):
@@ -490,9 +520,24 @@ class Tag_QuotesView(View):
                     status=400
                     )
     
-class Get_Tag_Quote_random(View):
+class Get_Tag_Quote_randomID(View):
     def get(self, request, tag_id):
         quote_data = Quote_Tag.objects.filter(tag_id=tag_id).order_by('?').values(
+            'quote__id',
+            'quote__quote',
+            'quote__author'
+        ).first()
+
+        obj = {
+            'data': quote_data
+        }
+        return JsonResponse(obj)
+    
+class Get_Tag_Quote_random(View):
+    def get(self, request):
+        quote_data = Quote_Tag.objects.order_by('?').values(
+            'tag__id',
+            'tag__name',
             'quote__id',
             'quote__quote',
             'quote__author'
