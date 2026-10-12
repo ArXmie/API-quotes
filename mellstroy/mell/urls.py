@@ -4,11 +4,9 @@ from .views import *
 urlpatterns = [
     path('quotes/', QuotesView.as_view()),
     path('quotes/<int:id>', Get_Quote.as_view()),
-    path('quotes/add', QuotesView.as_view()),
     path('quotes/random', Get_Quote_random.as_view()),
     path('category/', CategoriesView.as_view()),
     path('category/<int:id>', CategoryView.as_view()),
-    path('category/add', CategoriesView.as_view()),
     path('category/quotes', Quote_CategoryAll.as_view()),
     path('category/<int:category_id>/quotes/random', Get_Category_Quote_randomID.as_view()),
     path('category/quotes/random', Get_Category_Quote_random.as_view()),
